@@ -596,7 +596,7 @@ function love.draw()
 
         love.graphics.printf(
             "Tu oleada máxima: "
-            .. Wave.max.Reached,
+            .. Wave.maxReached,
             0,
             200,
             love.graphics.getWidth(),

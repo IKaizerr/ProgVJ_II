@@ -2,7 +2,7 @@ local Wave = {}
 
 Wave.current = 1
 Wave.maxWaves = 3
-Wave.maxReached = 0
+Wave.maxReached = 1
 
 
 -- CANTIDAD DE ENEMIGOS
@@ -80,11 +80,14 @@ function Wave.next()
     Wave.current =
         Wave.current + 1
 
-    if Wave.current >
-        Wave.maxWaves then
+    if Wave.current <= Wave.maxWaves then
+        
+        if Wave.current > Wave.maxReached then
 
         Wave.maxReached =
         Wave.current 
+
+        end
 
     end
 
