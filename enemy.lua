@@ -1,6 +1,6 @@
 local Enemy = {}
 
-
+Enemy.images = {}
 
 -- TIPOS DE ENEMIGO
 
@@ -8,7 +8,7 @@ local EnemyTypes = {
 
     basic = {
 
-        maxHealth = 100,
+        maxHealth = 40,
         damage = 10,
         speed = 100,
         attackRange = 50,
@@ -23,7 +23,7 @@ local EnemyTypes = {
 
     fast = {
 
-        maxHealth = 60,
+        maxHealth = 20,
         damage = 5,
         speed = 180,
         attackRange = 40,
@@ -37,6 +37,34 @@ local EnemyTypes = {
 
 }
 
+
+-- CARGAR ASSETS DE ENEMIGOS
+
+function Enemy.load()
+
+    if love.filesystem.getInfo(
+        "assets/slime_basic.png"
+    ) then
+
+        Enemy.images.basic =
+            love.graphics.newImage(
+                "assets/slime_basic.png"
+            )
+
+    end
+
+    if love.filesystem.getInfo(
+        "assets/slime_fast.png"
+    ) then
+
+        Enemy.images.fast =
+            love.graphics.newImage(
+                "assets/slime_fast.png"
+            )
+
+    end
+
+end
 
 -- CREAR ENEMIGO
 
@@ -70,10 +98,10 @@ function Enemy.new(x, y, enemyType, wave)
     -- ESCALADO DE DIFICULTAD
 
 local healthMultiplier =
-        1 + ((wave - 1) * 0.20)
+        1 + ((wave - 1) * 0.5)
 
     local damageMultiplier =
-        1 + ((wave - 1) * 0.10)
+        1 + ((wave - 1) * 0.5)
 
 
     enemy.maxHealth =
@@ -218,7 +246,6 @@ if distance > enemy.attackRange then
     end
 
 
-    
     -- SEPARACIÓN ENTRE ENEMIGOS
 
 if enemies then
@@ -401,43 +428,73 @@ local deathScale = 1
         enemy.y + enemy.height / 2
 
 
-    -- COLOR DEL ENEMIGO
+    --OBTENER IMAGEN DEL ENEMIGO
 
-    if enemy.hitTimer > 0 then
+    local image =
+        Enemy.images[enemy.type]
+
+
+
+    --DIBUJAR SPRITE SI EXISTE 
+
+    if image then
 
         love.graphics.setColor(
             1,
             1,
             1,
             deathAlpha
+        )
+
+        love.graphics.draw(
+            image,
+            centerX,
+            centerY,
+            0,
+            (enemy.width * deathScale) / image:getWidth(),
+            (enemy.height * deathScale) / image:getHeight(),
+            image:getWidth() / 2,
+            image:getHeight() / 2
         )
 
     else
 
-        love.graphics.setColor(
-            enemy.color[1],
-            enemy.color[2],
-            enemy.color[3],
-            deathAlpha
+        --DIBUJO ANTIGUO POR SI ACASO
+
+        if enemy.hitTimer > 0 then
+
+            love.graphics.setColor(
+                1,
+                1,
+                1,
+                deathAlpha
+            )
+
+        else
+
+            love.graphics.setColor(
+                enemy.color[1],
+                enemy.color[2],
+                enemy.color[3],
+                deathAlpha
+            )
+
+        end
+
+        love.graphics.rectangle(
+            "fill",
+            centerX -
+                (enemy.width * deathScale) / 2,
+
+            centerY -
+                (enemy.height * deathScale) / 2,
+
+            enemy.width * deathScale,
+            enemy.height * deathScale
         )
 
     end
-
-
-    -- DIBUJAR CUERPO
-
-    love.graphics.rectangle(
-        "fill",
-        centerX -
-            (enemy.width * deathScale) / 2,
-
-        centerY -
-            (enemy.height * deathScale) / 2,
-
-        enemy.width * deathScale,
-        enemy.height * deathScale
-    )
-
+    
 
     -- RANGO DE ATAQUE
 

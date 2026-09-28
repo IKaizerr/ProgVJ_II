@@ -4,9 +4,14 @@ local Wave = require("wave")
 local Upgrade = require("upgrade")
 local Combat = require("combat")
 local Game = require("game")
+local Boss = require("boss")
 
 
 local enemies = {}
+
+local boss = nil
+
+local specialUpgradeChoices = 0
 
 
 -- CARGAR JUEGO
@@ -14,6 +19,15 @@ local enemies = {}
 function love.load()
 
     Player.load()
+
+    Enemy.load()
+
+    Boss.load()
+
+    --Probar una oleada especifica
+
+    --Wave.current = 10
+    --Wave.maxReached = 10
 
     startWave()
 
@@ -26,9 +40,29 @@ function startWave()
 
     enemies = {}
 
+    boss= nil
+
     local enemyCount =
         Wave.getEnemyCount()
 
+
+    --Oleada 10 exclusiva de Boss
+    
+    if Wave.current == 10 then
+        
+        boss = Boss.new(
+            600,
+            200,
+            "king"
+        )
+
+        Game.setState(
+            Game.PLAYING
+        )
+
+        return
+
+    end
 
     for i = 1, enemyCount do
 
@@ -86,6 +120,35 @@ function love.update(dt)
             Enemy
         )
 
+        if boss ~= nil and boss.alive then
+
+            local attackX,
+                  attackY,
+                  attackWidth,
+                  attackHeight =
+                Combat.getAttackArea(Player)
+            
+            local collision =
+                Combat.checkCollision(
+                    attackX,
+                    attackY,
+                    attackWidth,
+                    attackHeight,
+                    boss
+                )
+            
+            if collision then
+
+                Boss.takeDamage(
+                    boss,
+                    Player.damage
+                )
+            
+            end
+
+
+        end
+
         Player.attackHit = false
 
     end
@@ -118,6 +181,19 @@ function love.update(dt)
     end
 
 
+    -- ACTUALIZAR BOSS
+
+    if boss ~= nil and boss.alive then
+
+        Boss.update(
+            boss,
+            dt,
+            Player
+        )
+
+    end
+
+
     -- COMPROBAR MUERTE DEL JUGADOR
 
     if Player.health <= 0 then
@@ -142,6 +218,23 @@ end
 
 function checkWaveComplete()
 
+    --COMPROBAR SI EL BOSS ESTÁ VIVO EN LA OLEADA 10
+
+    if Wave.current == 10 then
+        
+
+        if boss ~= nil and not boss.alive then
+
+            Game.setState(
+                Game.VICTORY
+            )
+
+        end
+
+        return
+    end
+
+
     local aliveEnemies = 0
 
 
@@ -159,6 +252,9 @@ function checkWaveComplete()
 
     if aliveEnemies == 0 then
 
+        local completedWave =
+            Wave.current
+
         Wave.next()
 
 
@@ -169,6 +265,18 @@ function checkWaveComplete()
             )
 
         else
+
+            -- CADA 5 OLEADAS, DAR 3 MEJORAS, SINO SOLO 1
+
+            if completedWave % 5 == 0 then
+
+                specialUpgradeChoices = 3
+
+            else
+
+                specialUpgradeChoices = 1
+
+            end
 
             Upgrade.generateChoices()
 
@@ -271,6 +379,10 @@ function love.keypressed(key)
 
         Upgrade.currentChoices = {}
 
+        --REINICIAR MEJORAS ESPECIALES
+
+        specialUpgradeChoices = 0
+
 
         -- INICIAR NUEVA PARTIDA
 
@@ -305,7 +417,21 @@ function love.keypressed(key)
                 Player
             )
 
-            startWave()
+            if specialUpgradeChoices > 1 then
+
+                specialUpgradeChoices =
+                    specialUpgradeChoices - 1
+
+                Upgrade.generateChoices()
+
+            else
+
+                specialUpgradeChoices = 0
+
+                startWave()
+
+            end
+
 
 
         elseif key == "2" then
@@ -315,7 +441,20 @@ function love.keypressed(key)
                 Player
             )
 
-            startWave()
+            if specialUpgradeChoices > 1 then
+
+                specialUpgradeChoices =
+                    specialUpgradeChoices - 1
+
+                Upgrade.generateChoices()
+
+            else
+
+                specialUpgradeChoices = 0
+
+                startWave()
+
+            end
 
 
         elseif key == "3" then
@@ -325,7 +464,20 @@ function love.keypressed(key)
                 Player
             )
 
-            startWave()
+            if specialUpgradeChoices > 1 then
+
+                specialUpgradeChoices =
+                    specialUpgradeChoices - 1
+
+                Upgrade.generateChoices()
+
+            else
+
+                specialUpgradeChoices = 0
+
+                startWave()
+
+            end
 
         end
 
@@ -353,6 +505,13 @@ function love.draw()
     end
 
 
+    if boss ~= nil and boss.alive then
+
+        Boss.draw(boss)
+
+    end
+
+
     -- INFORMACIÓN DE OLEADA
 
     love.graphics.print(
@@ -376,12 +535,31 @@ function love.draw()
             120
         )
 
+        if specialUpgradeChoices > 1 then
 
-        love.graphics.print(
-            "Elige una mejora:",
-            385,
-            160
-        )
+            love.graphics.print(
+                " Mejoras Especiales:",
+                350,
+                160
+            )
+
+            love.graphics.print(
+                "Elige una mejora -Elecciones restantes:"
+                .. specialUpgradeChoices,
+                280,
+                185
+                
+            )
+        
+        else 
+
+            love.graphics.print(
+                " Elige una mejora:",
+                385,
+                160
+            )
+
+        end
 
 
         -- MEJORA 1

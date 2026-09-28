@@ -1,7 +1,7 @@
 local Wave = {}
 
 Wave.current = 1
-Wave.maxWaves = 3
+Wave.maxWaves = 10
 Wave.maxReached = 1
 
 
@@ -9,7 +9,13 @@ Wave.maxReached = 1
 
 function Wave.getEnemyCount()
 
-    return Wave.current
+    --OLEADA DEL JEFE 
+    if Wave.current == 10 then 
+
+        return 0
+    end
+
+    return math.min(Wave.current, 4)
 
 end
 
@@ -62,6 +68,26 @@ function Wave.getEnemyType(index)
             return "basic"
 
         end
+
+    end
+
+    if Wave.current >= 4 and Wave.current <= 9 then
+
+        if index % 3 == 0 then
+
+            return "fast"
+
+        else
+
+            return "basic"
+
+        end
+
+    end
+
+    if Wave.current == 10 then
+
+        return nil
 
     end
 
