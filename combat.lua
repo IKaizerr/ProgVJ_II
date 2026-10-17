@@ -1,4 +1,5 @@
 local Combat = {}
+local Events = require("events")
 
 
 -- OBTENER ÁREA DE ATAQUE
@@ -140,6 +141,16 @@ function Combat.applyAttackDamage(
                     player.damage,
                     player
                 )
+
+                -- Prototipo 3: evento personalizado de impacto 
+
+                Events.emit("enemy_hit", {
+                    damage = player.damage,
+                    enemyHealth = enemy.health,
+                    x = enemy.x,
+                    y = enemy.y,
+                    enemy = enemy
+                })
 
             end
 

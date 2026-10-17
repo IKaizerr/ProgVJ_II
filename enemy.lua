@@ -1,4 +1,5 @@
 local Enemy = {}
+local Events = require("events")
 
 Enemy.images = {}
 
@@ -212,6 +213,19 @@ if enemy.hitTimer > 0 then
 
     end
 
+    -- Prototipo 3: actualizar temporizador de texto de dañp 
+
+if enemy.damageTextTimer and enemy.damageTextTimer > 0 then
+    
+    enemy.damageTextTimer = enemy.damageTextTimer - dt
+
+        if enemy.damageTextTimer <= 0
+then
+        enemy.damageTextTimer = 0 
+    end
+
+end
+
 
     
     -- CALCULAR DIRECCIÓN HACIA EL JUGADOR
@@ -383,6 +397,14 @@ if enemy.health <= 0 then
 
         enemy.deathTimer =
             enemy.deathDuration
+
+        -- Prototipo 3: evento personalizado de muerte de enemigo
+
+        Events.emit("enemy_died", {
+            enemyType = enemy.type,
+            x = enemy.x,
+            y = enemy.y
+        })
 
     end
 
@@ -578,6 +600,31 @@ local deathScale = 1
         1,
         1
     )
+
+    -- Prototipo 3: dibujar texto de daño 
+
+    if enemy.damageTextTimemr and enemy.damageTextTimer > 0 then 
+
+        love.graphics.setColor(
+            1,
+            0.3,
+            0.2
+        )
+
+        love.graphics.print(
+            "-" .. enemy.damageText,
+            enemy.x,
+            enemy.y - 40 
+
+        )
+
+        love.graphics.setColor(
+            1,
+            1,
+            1
+        )
+    
+    end
 
 end
 

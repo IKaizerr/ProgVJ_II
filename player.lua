@@ -1,4 +1,5 @@
 local Player = {}
+local Events = require("events")
 
 Player.image = nil
 Player.spriteSheet = nil
@@ -376,13 +377,13 @@ function Player.attack()
 
         -- SONIDO DE ATAQUE
 
-        if Player.attacksound:isPlaying() then
+        -- if Player.attacksound:isPlaying() then
 
-            Player.attacksound:stop()
+           -- Player.attacksound:stop()
 
-        end
+        -- end
 
-        Player.attacksound:play()
+        -- Player.attacksound:play()
 
 
         -- ACTIVAR ATAQUE
@@ -401,7 +402,14 @@ function Player.attack()
 
         Player.attackPending = false
 
+        -- Prototipo 3: evento personalizado de ataque
 
+        Events.emit("player_attack", {
+            damage = Player.damage,
+            direction = Player.direction,
+            x = Player.x,
+            y = Player.y,   
+        })
 
         -- ACTIVAR EFECTO VISUAL
 
@@ -438,6 +446,13 @@ function Player.takeDamage(damage)
         Player.health = 0
 
     end
+
+    -- Prototipo 3: evento personalizado 
+    
+    Events.emit("player_hit", {
+        damage = damage,
+        health = Player.health
+    })
 
 end
 

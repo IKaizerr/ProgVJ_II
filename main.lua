@@ -5,6 +5,11 @@ local Upgrade = require("upgrade")
 local Combat = require("combat")
 local Game = require("game")
 local Boss = require("boss")
+local Events = require("events")
+
+local uiHealth = 100
+local uiMaxHealth = 100
+local uiDamageRecived = nil
 
 
 local enemies = {}
@@ -30,6 +35,58 @@ function love.load()
     --Wave.maxReached = 10
 
     startWave()
+
+    print("Bienvenidos al juego de Oleadas Roguelite!")
+
+    Events.on("player_hit", function(data)
+
+        uiHealth = data.health
+        uiDamageReceived = data.damage
+
+        print("Se recibio el evento player_hit")
+        print("Vida mostrada en UI: " .. uiHealth)
+    
+    end)
+
+    -- Prototipo 3: receptor del evento de ataque 
+
+    Events.on("player_attack", function(data)
+    
+        -- Prototipo 3: reproducir sonido de ataque
+
+        if Player.attacksound:isPlaying() then
+            Player.attacksound:stop()
+        end
+
+        Player.attacksound:play()
+
+        print("Se recibio el evento player_attack")
+        print("Daño del jugador: " .. data.damage)
+        print("Direccion del ataque: " .. data.direction)
+
+    end)
+
+
+    -- Prototipo 3: receptor del evento enemy_hit
+
+    Events.on("enemy_hit", function(data)
+
+        print("Se recibio el evento enemy_hit")
+        print("Daño recibido por el enemigo: " .. data.damage)
+        print("Vida restante del enemigo: " .. data.enemyHealth)
+
+    end)
+
+
+    -- Prototipo 3: receptor del evento enemy_died
+
+    Events.on("enemy_died", function(data)
+
+        print("Se recibio el evento enemy_died")
+        print("El enemigo ha muerto")
+        print("Tipo: " .. data.enemyType)
+
+    end)
 
 end
 
@@ -495,6 +552,17 @@ function love.draw()
 
     Player.draw()
 
+    -- Prototipo 3: mostrar daño recibido mediante eventos 
+
+    if uiDamageRecived ~= nil then 
+
+        love.graphics.print(
+            "Ultimo daño recibido: " .. uiDamageRecived,
+            20,
+            120
+        )
+    
+    end
 
     -- ENEMIGOS
 
