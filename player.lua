@@ -404,6 +404,8 @@ function Player.attack()
 
         -- Prototipo 3: evento personalizado de ataque
 
+        print("daño del jugador:", Player.damage)
+
         Events.emit("player_attack", {
             damage = Player.damage,
             direction = Player.direction,
@@ -728,7 +730,7 @@ function Player.draw()
         love.graphics.print(
             "Ataque: "
             .. Player.attackRange
-            .. " (En ataque)",
+            .. " (Distancia de Ataque)",
             20,
             80
         )

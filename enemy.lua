@@ -603,7 +603,7 @@ local deathScale = 1
 
     -- Prototipo 3: dibujar texto de daño 
 
-    if enemy.damageTextTimemr and enemy.damageTextTimer > 0 then 
+    if enemy.damageTextTimer and enemy.damageTextTimer > 0 then 
 
         love.graphics.setColor(
             1,
