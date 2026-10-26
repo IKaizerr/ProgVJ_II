@@ -12,6 +12,7 @@ local Events = require("events")
 local uiHealth = 100
 local uiMaxHealth = 100
 local uiDamageRecived = nil
+local selectingUpgrade = false
 
 local normalMusic = nil
 local bossMusic = nil
@@ -422,6 +423,11 @@ end
 -- COMPROBAR SI TERMINÓ LA OLEADA
 
 function checkWaveComplete()
+
+    if Game.state ~= Game.PLAYING then 
+        return
+    end
+
     -- Final del combate contra el jefe
 
     if Wave.current == 10 then
@@ -448,16 +454,10 @@ function checkWaveComplete()
 
     local completedWave = Wave.current
 
-    Wave.next()
+    -- Bloquea nuevas comprobaciones cuando se elijen las mejoras
+    Game.setState(Game.UPGRADE)
 
-
-        if Wave.isFinished() then
-            stopMusic()
-            Game.setState(
-                Game.VICTORY
-            )
-            return
-        end
+        selectingUpgrade = false
 
         Player.health = Player.maxHealth
 
@@ -473,26 +473,45 @@ function checkWaveComplete()
 
             end
 
-            Upgrade.generateChoices()
-
-            Game.setState(
-                Game.UPGRADE
-            )
+            if completedWave >= Wave.maxWaves
+        then
+                stopMusic()
+                Game.setState(Game.VICTORY)
+                return
         end
+
+        Upgrade.generateChoices()
+    end
 
 -- Aplicar mejora seleccionada
 
 local function selectUpgrade(choice)
+
+    if not Game.isUpgrade() then
+        return
+    end
+
+    if selectingUpgrade then
+        return
+    end
+
+    selectingUpgrade = true
+
     Upgrade.apply(choice, Player)
 
     if specialUpgradeChoices > 1 then 
         specialUpgradeChoices = specialUpgradeChoices -1
         Upgrade.generateChoices()
-    else
+        selectingUpgrade = false
+    return
+    end
+
         specialUpgradeChoices = 0
+
+        Game.setState(Game.PLAYING)
+        Wave.next()
         startWave()
     end
-end
 
 -- Reiniciar partida 
 
@@ -542,6 +561,7 @@ function resetGame()
 
     specialUpgradeChoices = 0
     oneShotMode = false
+    selectingUpgrade = false
 
     -- Restaurar datos de la interfaz.
 
@@ -557,7 +577,7 @@ end
 
 -- Controles del teclado
 
-function love.keypressed(key)
+function love.keypressed(key, scancode, isrepeat)
 
     -- Menu Inicial
 
@@ -645,6 +665,10 @@ function love.keypressed(key)
     -- MEJORAS
 
     if Game.isUpgrade() then
+        if isrepeat then
+            return
+        end
+
         if key == "1" then
             selectUpgrade(1)
         elseif key == "2" then 
