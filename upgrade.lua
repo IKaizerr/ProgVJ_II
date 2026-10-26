@@ -13,13 +13,13 @@ Upgrade.list = {
     -- 1. DAÑO
 
     {
-        name = "Daño +5",
-        descripcion = "Aumenta el daño del jugador en 5 puntos.",
+        name = "Daño +20",
+        descripcion = "Aumenta el daño del jugador en 20 puntos.",
 
         apply = function(player)
 
             player.damage =
-                player.damage + 5
+                player.damage + 20
 
         end
     },
@@ -43,13 +43,13 @@ Upgrade.list = {
     -- 3. VIDA MÁXIMA
 
     {
-        name = "Vida maxima +20",
-        descripcion = "Aumenta la vida máxima del jugador en 20 puntos.",
+        name = "Vida maxima +50",
+        descripcion = "Aumenta la vida máxima del jugador en 50 puntos.",
         
         apply = function(player)
 
             player.maxHealth =
-                player.maxHealth + 20
+                player.maxHealth + 50
 
             player.health =
                 player.maxHealth
